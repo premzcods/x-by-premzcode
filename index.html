@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appel Tweets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .dynamic-island {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: scale(1);
+            transform-origin: center;
+        }
+        .dynamic-island-expanded {
+            width: 300px;
+            height: 100px;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        #islandContent {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .dynamic-island-expanded #islandContent {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Dynamic Island Header -->
+    <header class="fixed top-2 left-1/2 transform -translate-x-1/2 z-10">
+        <div id="dynamicIsland" class="dynamic-island bg-black text-white rounded-full px-6 py-2 mx-auto flex items-center justify-center">
+            <span id="islandContent">Premz Tweets</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container mx-auto pt-20 px-4 max-w-2xl">
+        <!-- Post Input -->
+        <div class="bg-white rounded-2xl p-4 mb-6 shadow-lg">
+            <textarea id="tweetInput" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="What's on your mind?"></textarea>
+            <div class="flex justify-between mt-2">
+                <input type="file" id="photoUpload" accept="image/*" class="text-sm">
+                <button id="postButton" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors">Tweet</button>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timeline" class="space-y-6"></div>
+    </main>
+
+    <script>
+        const dynamicIsland = document.getElementById('dynamicIsland');
+        const islandContent = document.getElementById('islandContent');
+        const tweetInput = document.getElementById('tweetInput');
+        const photoUpload = document.getElementById('photoUpload');
+        const postButton = document.getElementById('postButton');
+        const timeline = document.getElementById('timeline');
+
+        // Dynamic Island interaction
+        dynamicIsland.addEventListener('mouseover', () => {
+            dynamicIsland.classList.add('dynamic-island-expanded');
+            setTimeout(() => {
+                islandContent.textContent = 'Welcome to Premz Tweets';
+            }, 100); // Slight delay for text change
+        });
+
+        dynamicIsland.addEventListener('mouseout', () => {
+            dynamicIsland.classList.remove('dynamic-island-expanded');
+            setTimeout(() => {
+                islandContent.textContent = 'Premz Tweets';
+            }, 200); // Delay text change for smoother exit
+        });
+
+        // Handle posting
+        postButton.addEventListener('click', () => {
+            const content = tweetInput.value.trim();
+            if (!content) return;
+
+            const tweet = document.createElement('div');
+            tweet.className = 'bg-white rounded-2xl p-4 shadow-lg';
+            
+            const tweetContent = document.createElement('p');
+            tweetContent.textContent = content;
+            tweetContent.className = 'text-gray-800 mb-2';
+            tweet.appendChild(tweetContent);
+
+            // Handle photo upload
+            if (photoUpload.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full rounded-lg mt-2 max-h-96 object-cover';
+                    tweet.appendChild(img);
+                };
+                reader.readAsDataURL(photoUpload.files[0]);
+            }
+
+            // Add timestamp
+            const timestamp = document.createElement('span');
+            timestamp.textContent = new Date().toLocaleString();
+            timestamp.className = 'text-gray-500 text-sm';
+            tweet.appendChild(timestamp);
+
+            timeline.prepend(tweet);
+            
+            // Clear inputs
+            tweetInput.value = '';
+            photoUpload.value = '';
+            
+            // Dynamic Island notification with animation
+            dynamicIsland.classList.add('dynamic-island-expanded');
+            islandContent.textContent = 'Tweet Posted!';
+            dynamicIsland.style.transform = 'scale(1.1)'; // Bounce effect
+            setTimeout(() => {
+                dynamicIsland.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    dynamicIsland.classList.remove('dynamic-island-expanded');
+                    dynamicIsland.style.transform = 'scale(1)';
+                    islandContent.textContent = 'Appel Tweets';
+                }, 1500);
+            }, 200);
+        });
+    </script>
+</body>
+</html>
